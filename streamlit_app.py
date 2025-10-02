@@ -1,19 +1,30 @@
+
+
 import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
-st.title("🎈 My new app")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
-)
+st.title("� 몬테카를로 시뮬레이션 시각화")
 
-# 몬테카를로 시뮬레이션 페이지
-st.header("몬테카를로 시뮬레이션")
+st.write("실행 횟수를 입력하고, 몬테카를로 시뮬레이션 결과를 시각적으로 확인하세요.")
 
 # 실행 횟수 입력
-num_simulations = st.number_input("실행 횟수 입력", min_value=100, max_value=1000000, value=10000, step=100)
+num_trials = st.number_input("실행 횟수 (예: 1000)", min_value=100, max_value=100000, value=1000, step=100)
+
+# 시뮬레이션 예시: 동전 던지기(앞면 확률 0.5)
+st.subheader("예시: 동전 던지기 (앞면 확률 0.5)")
 
 if st.button("시뮬레이션 실행"):
-    import numpy as np
-    # 예시: 동전 던지기(앞면 확률 추정)
-    results = np.random.binomial(1, 0.5, num_simulations)
-    estimated_prob = np.mean(results)
-    st.write(f"{num_simulations}번 동전 던지기에서 앞면이 나온 비율(추정 확률): {estimated_prob:.4f}")
+    results = np.random.binomial(1, 0.5, int(num_trials))
+    cumulative_mean = np.cumsum(results) / np.arange(1, int(num_trials)+1)
+
+    fig, ax = plt.subplots(figsize=(8,4))
+    ax.plot(cumulative_mean, label="누적 평균 (앞면 비율)")
+    ax.axhline(0.5, color='red', linestyle='--', label="이론값 0.5")
+    ax.set_xlabel("시도 횟수")
+    ax.set_ylabel("앞면 비율")
+    ax.set_title("몬테카를로 시뮬레이션: 동전 던지기")
+    ax.legend()
+    st.pyplot(fig)
+else:
+    st.info("실행 횟수를 입력하고 '시뮬레이션 실행' 버튼을 눌러주세요.")
