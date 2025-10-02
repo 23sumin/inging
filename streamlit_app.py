@@ -2,7 +2,12 @@ import streamlit as st
 
 
 import numpy as np
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
 
 st.title("� 몬테카를로 시뮬레이션 시각화")
 
@@ -19,9 +24,16 @@ if st.button("시뮬레이션 실행"):
     # 몬테카를로 시뮬레이션: 각 시뮬레이션마다 성공 횟수 기록
     results = np.random.binomial(trials, success_prob, int(num_simulations))
     st.write(f"각 시뮬레이션에서 성공한 횟수 분포 (총 {num_simulations}회)")
-    fig, ax = plt.subplots()
-    ax.hist(results, bins=range(0, trials+2), edgecolor='black', alpha=0.7)
-    ax.set_xlabel('성공 횟수')
-    ax.set_ylabel('빈도')
-    ax.set_title('몬테카를로 시뮬레이션 결과 분포')
-    st.pyplot(fig)
+    if MATPLOTLIB_AVAILABLE:
+        fig, ax = plt.subplots()
+        ax.hist(results, bins=range(0, trials+2), edgecolor='black', alpha=0.7)
+        ax.set_xlabel('성공 횟수')
+        ax.set_ylabel('빈도')
+        ax.set_title('몬테카를로 시뮬레이션 결과 분포')
+        st.pyplot(fig)
+    else:
+        # matplotlib이 없으면 streamlit 내장 bar_chart 사용
+        import pandas as pd
+        value_counts = pd.Series(results).value_counts().sort_index()
+        st.bar_chart(value_counts)
+        st.info('matplotlib이 설치되어 있지 않아 Streamlit 기본 차트로 대체되었습니다.')
